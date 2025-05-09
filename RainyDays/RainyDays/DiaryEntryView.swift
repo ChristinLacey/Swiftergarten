@@ -1,14 +1,22 @@
 import SwiftUI
+import CoreData
 
 struct DiaryEntryView: View {
     @State private var entryText = ""
-    @Binding var savedEntry: String // Binding to update ContentView’s savedEntry
-    @Environment(\.dismiss) private var dismiss // To go back to the main screen
+    @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
+
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium // e.g., "May 8, 2025"
+        formatter.timeStyle = .none
+        return formatter
+    }()
 
     var body: some View {
         VStack {
-            Text("Today’s Diary")
-                .font(.title)
+            Text(dateFormatter.string(from: Date()))
+                .font(.title2)
                 .padding()
 
             TextEditor(text: $entryText)
@@ -19,8 +27,8 @@ struct DiaryEntryView: View {
                 .padding(.horizontal)
 
             Button("Save") {
-                savedEntry = entryText // Save the text
-                dismiss() // Go back to the main screen
+                saveEntry()
+                dismiss()
             }
             .padding()
             .background(.blue)
@@ -28,8 +36,21 @@ struct DiaryEntryView: View {
             .clipShape(Capsule())
         }
     }
+
+    private func saveEntry() {
+        let newEntry = DiaryEntry(context: viewContext)
+        newEntry.date = Date()
+        newEntry.text = entryText
+
+        do {
+            try viewContext.save()
+        } catch {
+            print("Failed to save entry: \(error)")
+        }
+    }
 }
 
 #Preview {
-    DiaryEntryView(savedEntry: .constant(""))
+    DiaryEntryView()
+        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
 }

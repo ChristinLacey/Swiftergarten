@@ -1,7 +1,19 @@
 import SwiftUI
+import CoreData
 
 struct ContentView: View {
-    @State private var savedEntry = "" // Stores the saved diary entry
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \DiaryEntry.date, ascending: false)],
+        animation: .default)
+    private var entries: FetchedResults<DiaryEntry>
+
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
 
     var body: some View {
         NavigationStack {
@@ -16,7 +28,8 @@ struct ContentView: View {
                     .padding()
 
                 NavigationLink {
-                    DiaryEntryView(savedEntry: $savedEntry) // Pass the binding
+                    DiaryEntryView()
+                        .environment(\.managedObjectContext, viewContext)
                 } label: {
                     Text("Write Today’s Entry")
                         .padding()
@@ -24,10 +37,19 @@ struct ContentView: View {
                         .foregroundColor(.white)
                         .clipShape(Capsule())
                 }
+            }
 
-                if !savedEntry.isEmpty {
-                    Text("Latest Entry: \(savedEntry)")
-                        .padding()
+            List {
+                ForEach(entries) { entry in
+                    VStack(alignment: .leading) {
+                        Text(dateFormatter.string(from: entry.date!))
+                            .font(.headline)
+                            .foregroundColor(.blue)
+                        Text(entry.text!)
+                            .font(.body)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.vertical, 4)
                 }
             }
         }
@@ -36,4 +58,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
 }
