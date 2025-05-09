@@ -17,40 +17,68 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                Text("Rainy Days")
-                    .font(.largeTitle)
-                    .padding()
+            ZStack {
+                // Background gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.sailorCream, Color.sailorBlue.opacity(0.3)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
 
-                Circle()
-                    .frame(width: 100, height: 100)
-                    .foregroundColor(.gray)
-                    .padding()
+                VStack {
+                    // Title
+                    Text("Rainy Days")
+                        .font(.system(.largeTitle, design: .rounded))
+                        .foregroundColor(Color.sailorPink)
+                        .padding(.top, 20)
 
-                NavigationLink {
-                    DiaryEntryView()
-                        .environment(\.managedObjectContext, viewContext)
-                } label: {
-                    Text("Write Today’s Entry")
-                        .padding()
-                        .background(.blue)
-                        .foregroundColor(.white)
-                        .clipShape(Capsule())
-                }
-            }
-
-            List {
-                ForEach(entries) { entry in
-                    VStack(alignment: .leading) {
-                        Text(dateFormatter.string(from: entry.date!))
-                            .font(.headline)
-                            .foregroundColor(.blue)
-                        Text(entry.text!)
-                            .font(.body)
-                            .foregroundColor(.gray)
+                    // Write button
+                    NavigationLink {
+                        DiaryEntryView()
+                            .environment(\.managedObjectContext, viewContext)
+                    } label: {
+                        Text("Write Today’s Entry")
+                            .font(.system(.body, design: .rounded))
+                            .padding()
+                            .background(Color.sailorBlue)
+                            .foregroundColor(Color.sailorCream)
+                            .clipShape(Capsule())
+                            .shadow(radius: 3)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.bottom)
+
+                    // Entry list
+                    List {
+                        ForEach(entries) { entry in
+                            VStack(alignment: .leading) {
+                                Text(dateFormatter.string(from: entry.date!))
+                                    .font(.system(.headline, design: .rounded))
+                                    .foregroundColor(Color.sailorPink)
+                                Text(entry.text!)
+                                    .font(.system(.body, design: .rounded))
+                                    .foregroundColor(Color.sailorLavender)
+                            }
+                            .padding()
+                            .background(Color.sailorCream.opacity(0.8))
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                            .padding(.vertical, 2)
+                        }
+                    }
+                    .scrollContentBackground(.hidden)
                 }
+
+                // Avatar (bottom-right)
+                NavigationLink {
+                    WardrobeView()
+                } label: {
+                    Image("default_chibi")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                        .shadow(radius: 5)
+                }
+                .position(x: UIScreen.main.bounds.width - 100, y: UIScreen.main.bounds.height - 180)
             }
         }
     }

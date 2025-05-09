@@ -8,32 +8,50 @@ struct DiaryEntryView: View {
 
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium // e.g., "May 8, 2025"
+        formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter
     }()
 
     var body: some View {
-        VStack {
-            Text(dateFormatter.string(from: Date()))
-                .font(.title2)
-                .padding()
+        ZStack {
+            // Background gradient
+            LinearGradient(
+                gradient: Gradient(colors: [Color.sailorCream, Color.sailorBlue.opacity(0.3)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-            TextEditor(text: $entryText)
-                .frame(height: 200)
-                .padding()
-                .background(.gray.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .padding(.horizontal)
+            VStack {
+                // Date
+                Text(dateFormatter.string(from: Date()))
+                    .font(.system(.title2, design: .rounded))
+                    .foregroundColor(Color.sailorPink)
+                    .padding()
 
-            Button("Save") {
-                saveEntry()
-                dismiss()
+                // Text editor
+                TextEditor(text: $entryText)
+                    .frame(height: 200)
+                    .padding()
+                    .background(Color.sailorCream.opacity(0.8))
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .padding(.horizontal)
+                    .shadow(radius: 3)
+
+                // Save button
+                Button("Save") {
+                    saveEntry()
+                    dismiss()
+                }
+                .font(.system(.body, design: .rounded))
+                .padding()
+                .background(Color.sailorBlue)
+                .foregroundColor(Color.sailorCream)
+                .clipShape(Capsule())
+                .shadow(radius: 3)
             }
             .padding()
-            .background(.blue)
-            .foregroundColor(.white)
-            .clipShape(Capsule())
         }
     }
 
