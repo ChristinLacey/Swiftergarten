@@ -34,7 +34,10 @@ class Habits {
 }
 
 struct ContentView: View {
+    @State private var showingSheet = false
     @State private var habits = Habits()
+    @State private var inputHabit = ""
+    @State private var inputDesc = ""
     
     var body: some View {
         let exampleHabit = Habit(habitName: "Test Habit", habitDescription: "Test Description")
@@ -45,9 +48,34 @@ struct ContentView: View {
                     Text(habit.habitName)
                 }
                 }
-                .padding()
+                .navigationTitle("Good Habits")
                 .navigationDestination(for: Habit.self) { selected in
                     Text("\(selected.habitName):\n \(selected.habitDescription)")}
+                .toolbar {
+                    Button("+") {
+                        showingSheet = true
+                    }
+                    .sheet(isPresented: $showingSheet) {
+                        NavigationStack {
+                            Form {
+                                TextField("Habit Name", text: $inputHabit)
+                                TextField("Description", text: $inputDesc)
+                            }
+                            .navigationTitle("New habit")
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button("Save") {
+                                        let newHabit = Habit(habitName: inputHabit, habitDescription: inputDesc)
+                                        habits.habits.append(newHabit)
+                                        inputHabit = ""
+                                        inputDesc = ""
+                                        showingSheet = false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         .onAppear {
             if habits.habits.isEmpty {
